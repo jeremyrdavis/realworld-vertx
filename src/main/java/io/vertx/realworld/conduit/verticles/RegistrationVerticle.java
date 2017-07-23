@@ -1,16 +1,12 @@
 package io.vertx.realworld.conduit.verticles;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
-import io.vertx.ext.web.handler.StaticHandler;
-import io.vertx.realworld.conduit.domain.User;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.realworld.conduit.domain.User;
 
 public class RegistrationVerticle extends AbstractVerticle{
 
@@ -82,7 +78,6 @@ public class RegistrationVerticle extends AbstractVerticle{
                 .setStatusCode(201)
                 .putHeader("content-type", "application/json; charset=utf-8")
                 .end(Json.encodePrettily(new User("conduituser@vertx.io", "conduitusername", "conduituserpassword", "I am a test user", null, null)));
-
     }
 
 }
