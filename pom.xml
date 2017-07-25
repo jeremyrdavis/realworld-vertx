@@ -24,6 +24,11 @@
             <artifactId>vertx-web-client</artifactId>
             <version>3.4.2</version>
         </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-mongo-client</artifactId>
+            <version>3.4.2</version>
+        </dependency>
 
         <!-- Test Stuff -->
         <dependency>
@@ -36,6 +41,13 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-unit</artifactId>
             <version>3.4.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- for starting and stopping MondoDB -->
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>1.50.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -75,6 +87,29 @@
                             <artifactSet/>
                             <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</outputFile>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- For starting/stopping MongoDB in unit tests -->
+            <plugin>
+                <groupId>com.github.joelittlejohn.embedmongo</groupId>
+                <artifactId>embedmongo-maven-plugin</artifactId>
+                <version>0.2.0</version>
+                <executions>
+                    <execution>
+                        <id>start</id>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <port>37017</port>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop</id>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

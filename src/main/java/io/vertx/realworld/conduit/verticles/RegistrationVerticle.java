@@ -1,18 +1,31 @@
 package io.vertx.realworld.conduit.verticles;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.realworld.conduit.domain.User;
+import io.vertx.realworld.conduit.domain.ConduitUser;
+
+import java.util.ArrayList;
 
 public class RegistrationVerticle extends AbstractVerticle{
 
+    private MongoClient mongoClient;
+
+    public static final String COLLECTION = "conduit_users";
 
     @Override
     public void start(Future<Void> fut) {
+
+        // Create a MongoDB client
+        mongoClient = MongoClient.createShared(vertx, config());
+
         // Create a router object.
         Router router = Router.router(vertx);
 
@@ -74,10 +87,41 @@ public class RegistrationVerticle extends AbstractVerticle{
      * @param routingContext
      */
     private void registerUser(RoutingContext routingContext){
-        routingContext.response()
-                .setStatusCode(201)
-                .putHeader("content-type", "application/json; charset=utf-8")
-                .end(Json.encodePrettily(new User("conduituser@vertx.io", "conduitusername", "conduituserpassword", "I am a test user", null, null)));
+        final ConduitUser conduitUser = Json.decodeValue(routingContext.getBodyAsString(), ConduitUser.class);
+        mongoClient.insert(COLLECTION, conduitUser.toJson(), r ->{
+            routingContext.response()
+                    .setStatusCode(201)
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encodePrettily(new ConduitUser(
+                            "conduituser@vertx.io",
+                            "conduitusername",
+                            "conduituserpassword",
+                            "I am a test user",
+                            null, null, null)));
+
+        });
+    }
+
+    private void createSomeData(Handler<AsyncResult<Void>> next, Future<Void> fut) {
+
+        ArrayList<ConduitUser> conduitUsers = new ArrayList<ConduitUser>(3);
+        conduitUsers.add(new ConduitUser("user1@vertx.io", "user1", "password1", null, null, null, null));
+        conduitUsers.add(new ConduitUser("user2@vertx.io", "user1", "password2", null, null, null, null));
+        conduitUsers.add(new ConduitUser("user3@vertx.io", "user1", "password3", null, null, null, null));
+
+        mongoClient.count(COLLECTION, new JsonObject(), count ->{
+            if(count.succeeded()){
+                if(count == null || count.result() <= 0){
+                    conduitUsers.forEach( u -> { mongoClient.insert(COLLECTION, u.toJson(), ar -> {
+                        if(ar.failed()){
+                            fut.fail(ar.cause());
+                        }else{
+                            next.handle(Future.<Void>succeededFuture());
+                        }
+                    });});
+                }
+            }
+        });
     }
 
 }

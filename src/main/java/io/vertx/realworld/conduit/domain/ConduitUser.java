@@ -1,8 +1,12 @@
 package io.vertx.realworld.conduit.domain;
 
+import io.vertx.core.json.JsonObject;
+
 import java.net.URI;
 
-public class User {
+public class ConduitUser {
+
+    private String id;
 
     private String email;
 
@@ -16,16 +20,38 @@ public class User {
 
     private URI image;
 
-    public User() {
+    public ConduitUser() {
     }
 
-    public User(String email, String username, String password, String bio, URI image, String token) {
+    public ConduitUser(String email, String username, String password, String bio, URI image, String token, String id) {
         this.email = email;
         this.token = token;
         this.username = username;
         this.password = password;
         this.bio = bio;
         this.image = image;
+        this.id = id;
+    }
+
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject()
+                .put("email", email)
+                .put("username", username)
+                .put("password", password)
+                .put("bio", bio)
+                .put("image", image);
+        if (id != null && !id.isEmpty()) {
+            json.put("_id", id);
+        }
+        return json;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getEmail() {

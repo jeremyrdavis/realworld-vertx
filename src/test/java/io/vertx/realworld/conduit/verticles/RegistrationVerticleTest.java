@@ -1,5 +1,13 @@
 package io.vertx.realworld.conduit.verticles;
 
+import de.flapdoodle.embed.mongo.MongodExecutable;
+import de.flapdoodle.embed.mongo.MongodProcess;
+import de.flapdoodle.embed.mongo.MongodStarter;
+import de.flapdoodle.embed.mongo.config.IMongodConfig;
+import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
+import de.flapdoodle.embed.mongo.config.Net;
+import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.process.runtime.Network;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
@@ -8,10 +16,10 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -22,11 +30,35 @@ public class RegistrationVerticleTest {
 
     private Vertx vertx;
 
+    private static MongodProcess MONGO;
+
+    private static int MONGO_PORT = 12345;
+
+    /**
+     * Fire up the Mongo process
+     *
+     * @throws IOException
+     */
+    @BeforeClass
+    public static void initialize() throws IOException{
+        MongodStarter starter = MongodStarter.getDefaultInstance();
+        IMongodConfig mongodConfig = new MongodConfigBuilder()
+                .version(Version.Main.PRODUCTION)
+                .net(new Net(MONGO_PORT, Network.localhostIsIPv6()))
+                .build();
+        MongodExecutable mongodExecutable =
+                starter.prepare(mongodConfig);
+        MONGO = mongodExecutable.start();
+    }
+
+    @AfterClass
+    public static void shutDown(){ MONGO.stop(); }
+
     @Before
     public void setUp(TestContext testContext){
         vertx = Vertx.vertx();
         vertx.deployVerticle(RegistrationVerticle.class.getName(),testContext.asyncAssertSuccess());
-//        System.out.println("verticle deployed");
+        System.out.println("verticle deployed");
     }
 
     @After
@@ -94,6 +126,6 @@ public class RegistrationVerticleTest {
             assertNull(e);
         }
 
-
     }
+
 }
