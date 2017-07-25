@@ -8,6 +8,7 @@ import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
@@ -34,6 +35,8 @@ public class RegistrationVerticleTest {
 
     private static int MONGO_PORT = 12345;
 
+    private static int HTTP_PORT = 8080;
+
     /**
      * Fire up the Mongo process
      *
@@ -49,6 +52,7 @@ public class RegistrationVerticleTest {
         MongodExecutable mongodExecutable =
                 starter.prepare(mongodConfig);
         MONGO = mongodExecutable.start();
+
     }
 
     @AfterClass
@@ -56,8 +60,13 @@ public class RegistrationVerticleTest {
 
     @Before
     public void setUp(TestContext testContext){
+        DeploymentOptions options = new DeploymentOptions()
+                .setConfig(new JsonObject()
+                        .put("http.port", HTTP_PORT)
+                        .put("db_name", "conduit_users")
+                        .put("connection_string", "mongodb://localhost:" + MONGO_PORT));
         vertx = Vertx.vertx();
-        vertx.deployVerticle(RegistrationVerticle.class.getName(),testContext.asyncAssertSuccess());
+        vertx.deployVerticle(RegistrationVerticle.class.getName(), options, testContext.asyncAssertSuccess());
         System.out.println("verticle deployed");
     }
 

@@ -3,6 +3,7 @@ package io.vertx.realworld.conduit.domain;
 import io.vertx.core.json.JsonObject;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 public class ConduitUser {
 
@@ -31,6 +32,9 @@ public class ConduitUser {
         this.bio = bio;
         this.image = image;
         this.id = id;
+    }
+
+    public ConduitUser(JsonObject jsonObject){
     }
 
     public JsonObject toJson() {

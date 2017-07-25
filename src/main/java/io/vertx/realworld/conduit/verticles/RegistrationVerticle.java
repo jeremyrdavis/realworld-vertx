@@ -23,6 +23,7 @@ public class RegistrationVerticle extends AbstractVerticle{
     @Override
     public void start(Future<Void> fut) {
 
+        System.out.println(config());
         // Create a MongoDB client
         mongoClient = MongoClient.createShared(vertx, config());
 
@@ -87,18 +88,18 @@ public class RegistrationVerticle extends AbstractVerticle{
      * @param routingContext
      */
     private void registerUser(RoutingContext routingContext){
-        final ConduitUser conduitUser = Json.decodeValue(routingContext.getBodyAsString(), ConduitUser.class);
+
+        System.out.println("input:");
+        System.out.println(routingContext.getBodyAsJson());
+
+        JsonObject jsonConduitUser = routingContext.getBodyAsJson();
+
+        ConduitUser conduitUser = new ConduitUser(jsonConduitUser);
         mongoClient.insert(COLLECTION, conduitUser.toJson(), r ->{
             routingContext.response()
                     .setStatusCode(201)
                     .putHeader("content-type", "application/json; charset=utf-8")
-                    .end(Json.encodePrettily(new ConduitUser(
-                            "conduituser@vertx.io",
-                            "conduitusername",
-                            "conduituserpassword",
-                            "I am a test user",
-                            null, null, null)));
-
+                    .end(Json.encodePrettily(new ConduitUser("conduituser@vertx.io", "conduitusername", "conduituserpassword", "I am a test user", null, null, null)));
         });
     }
 
@@ -111,7 +112,7 @@ public class RegistrationVerticle extends AbstractVerticle{
 
         mongoClient.count(COLLECTION, new JsonObject(), count ->{
             if(count.succeeded()){
-                if(count == null || count.result() <= 0){
+                if(count.result() <= 0){
                     conduitUsers.forEach( u -> { mongoClient.insert(COLLECTION, u.toJson(), ar -> {
                         if(ar.failed()){
                             fut.fail(ar.cause());
@@ -122,6 +123,6 @@ public class RegistrationVerticle extends AbstractVerticle{
                 }
             }
         });
-    }
+   }
 
 }
