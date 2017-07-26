@@ -11,12 +11,14 @@ import de.flapdoodle.embed.process.runtime.Network;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.realworld.conduit.domain.ConduitUser;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -108,27 +110,32 @@ public class RegistrationVerticleTest {
 
         final Async async = testContext.async();
 
-        WebClient client = WebClient.create(vertx);
-        System.out.println("client created");
+        final String payload = Json.encodePrettily(new ConduitUser("conduituser@vertx.io", "conduituser@vertx.io", "conduituserpassword", null, null, null, null));
+
+//        WebClient client = WebClient.create(vertx);
+
+//        JsonObject payload = new JsonObject().put("username", "conduitusername")
+//                .put("email", "conduituser@vertx.io")
+//                .put("password", "conduituserpassword");
+        System.out.println(payload.toString());
+
 
         try{
-            client.post(8080, "localhost", "/api/users").sendJsonObject(
-                    new JsonObject().put("username", "conduitusername")
-                            .put("email", "conduituser@vertx.io")
-                            .put("password", "conduituserpassword"),
-                    ar ->{
-                        testContext.assertTrue(ar.succeeded());
-
-                        HttpResponse<Buffer> response = ar.result();
-
-                        testContext.assertEquals(response.statusCode(), 201);
-                        testContext.assertEquals(response.getHeader("content-type"), "application/json; charset=utf-8");
-
-                        JsonObject body = response.bodyAsJsonObject();
-                        System.out.println(body);
-                        assertNotNull(body);
-                        async.complete();
-                    });
+            vertx.createHttpClient().post(8080, "localhost", "/api/users")
+                    .putHeader("content-type","application/json; charset=utf-8")
+                    .handler(
+                        response ->{
+                            testContext.assertEquals(201, response.statusCode());
+                            testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
+                            response.bodyHandler(body ->{
+                                final ConduitUser conduitUser = Json.decodeValue(body.toString(), ConduitUser.class);
+                                assertNotNull(conduitUser);
+                                assertEquals("conduituser@vertx.io", conduitUser.getEmail());
+                                async.complete();
+                            });
+                        })
+                    .write(payload)
+                    .end();
 
         }catch (Exception e){
             assertNull(e);
@@ -136,9 +143,10 @@ public class RegistrationVerticleTest {
     }
 
 
+/*
     @Test
     public void testRegisterNewUserValidationForEmail(TestContext testContext){
-        System.out.println("testRegisterNewUser");
+        System.out.println("testRegisterNewUserValidationForEmail");
 
         final Async async = testContext.async();
 
@@ -154,8 +162,8 @@ public class RegistrationVerticleTest {
 
                         HttpResponse<Buffer> response = ar.result();
 
-                        testContext.assertEquals(response.statusCode(), 422);
-                        testContext.assertEquals(response.getHeader("content-type"), "application/json; charset=utf-8");
+                        testContext.assertEquals(422, response.statusCode());
+                        testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
 
                         JsonObject body = response.bodyAsJsonObject();
                         System.out.println(body);
@@ -167,5 +175,6 @@ public class RegistrationVerticleTest {
             assertNull(e);
         }
     }
+*/
 
 }

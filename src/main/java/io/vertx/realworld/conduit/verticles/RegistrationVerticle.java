@@ -11,6 +11,7 @@ import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.realworld.conduit.domain.ConduitUser;
+import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.ArrayList;
 
@@ -30,7 +31,7 @@ public class RegistrationVerticle extends AbstractVerticle{
         // Create a router object.
         Router router = Router.router(vertx);
 
-        // Bind "/" to our hello message - so we are still compatible.
+        // Bind "/" to our hello message
         router.route("/").handler(routingContext -> {
             HttpServerResponse response = routingContext.response();
             response
@@ -89,6 +90,7 @@ public class RegistrationVerticle extends AbstractVerticle{
      */
     private void registerUser(RoutingContext routingContext){
 
+        System.out.println(routingContext.getBodyAsString());
         System.out.println("input:");
         System.out.println(routingContext.getBodyAsJson());
 
@@ -96,12 +98,27 @@ public class RegistrationVerticle extends AbstractVerticle{
 
         ConduitUser conduitUser = new ConduitUser(jsonConduitUser);
 
+        // Validation
+        EmailValidator emailValidator = EmailValidator.getInstance();
+
+        // if the email address is invalid
+        if(!emailValidator.isValid(conduitUser.getEmail())){
+            System.out.println("invalid email detected");
+            ValidationError validationError = new ValidationError("invalid email address");
+            routingContext.response().setStatusCode(422)
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encodePrettily(validationError));
+        }
+
+        // return the newly created user
+        System.out.println("saving user");
         mongoClient.insert(COLLECTION, conduitUser.toJson(), r ->{
             routingContext.response()
                     .setStatusCode(201)
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encodePrettily(new ConduitUser("conduituser@vertx.io", "conduitusername", "conduituserpassword", "I am a test user", null, null, null)));
         });
+
     }
 
     private void createSomeData(Handler<AsyncResult<Void>> next, Future<Void> fut) {
