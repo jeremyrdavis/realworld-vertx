@@ -127,14 +127,45 @@ public class RegistrationVerticleTest {
                         JsonObject body = response.bodyAsJsonObject();
                         System.out.println(body);
                         assertNotNull(body);
-//                    assertEquals(body.getString("username"),"conduitusername");
                         async.complete();
                     });
 
         }catch (Exception e){
             assertNull(e);
         }
+    }
 
+
+    @Test
+    public void testRegisterNewUserValidationForEmail(TestContext testContext){
+        System.out.println("testRegisterNewUser");
+
+        final Async async = testContext.async();
+
+        WebClient client = WebClient.create(vertx);
+        System.out.println("client created");
+
+        try{
+            client.post(8080, "localhost", "/api/users").sendJsonObject(
+                    new JsonObject().put("username", "conduitusername")
+                            .put("password", "conduituserpassword"),
+                    ar ->{
+                        testContext.assertTrue(ar.succeeded());
+
+                        HttpResponse<Buffer> response = ar.result();
+
+                        testContext.assertEquals(response.statusCode(), 422);
+                        testContext.assertEquals(response.getHeader("content-type"), "application/json; charset=utf-8");
+
+                        JsonObject body = response.bodyAsJsonObject();
+                        System.out.println(body);
+                        assertNotNull(body);
+                        async.complete();
+                    });
+
+        }catch (Exception e){
+            assertNull(e);
+        }
     }
 
 }

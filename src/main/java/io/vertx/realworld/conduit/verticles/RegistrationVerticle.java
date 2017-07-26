@@ -95,6 +95,7 @@ public class RegistrationVerticle extends AbstractVerticle{
         JsonObject jsonConduitUser = routingContext.getBodyAsJson();
 
         ConduitUser conduitUser = new ConduitUser(jsonConduitUser);
+
         mongoClient.insert(COLLECTION, conduitUser.toJson(), r ->{
             routingContext.response()
                     .setStatusCode(201)
