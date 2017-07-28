@@ -119,6 +119,22 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18.1</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <java.util.logging.config.class>
+                            vertx-default-jul-logging.properties
+                        </java.util.logging.config.class>
+
+                        <!-- If you prefer a file this will work too -->
+                        <!--<java.util.logging.config.file>-->
+                        <!--src/test/resources/logging.properties-->
+                        <!--</java.util.logging.config.file>-->
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

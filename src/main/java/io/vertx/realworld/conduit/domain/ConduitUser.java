@@ -35,6 +35,13 @@ public class ConduitUser {
     }
 
     public ConduitUser(JsonObject jsonObject){
+        this.email = email = jsonObject.getString("email");
+        this.token = token = jsonObject.getString("token");
+        this.username = jsonObject.getString("username");
+        this.password = jsonObject.getString("password");
+        this.bio =  jsonObject.getString("bio");
+        this.image = URI.create(jsonObject.getString("image"));
+        this.id = jsonObject.getString("id");
     }
 
     public JsonObject toJson() {

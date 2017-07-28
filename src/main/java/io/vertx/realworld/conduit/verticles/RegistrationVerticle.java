@@ -7,15 +7,20 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.realworld.conduit.domain.ConduitUser;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.ArrayList;
 
 public class RegistrationVerticle extends AbstractVerticle{
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationVerticle.class);
 
     private MongoClient mongoClient;
 
@@ -24,7 +29,7 @@ public class RegistrationVerticle extends AbstractVerticle{
     @Override
     public void start(Future<Void> fut) {
 
-        System.out.println(config());
+        LOGGER.debug(config());
         // Create a MongoDB client
         mongoClient = MongoClient.createShared(vertx, config());
 
@@ -39,6 +44,7 @@ public class RegistrationVerticle extends AbstractVerticle{
                     .end("<h1>Hello from my first Vert.x 3 application</h1>");
         });
 
+        router.post().handler(BodyHandler.create());
         router.post("/api/users").handler(this::registerUser);
 
         // Create the HTTP server and pass the "accept" method to the request handler.
@@ -94,15 +100,16 @@ public class RegistrationVerticle extends AbstractVerticle{
         System.out.println("input:");
         System.out.println(routingContext.getBodyAsJson());
 
-        JsonObject jsonConduitUser = routingContext.getBodyAsJson();
-
-        ConduitUser conduitUser = new ConduitUser(jsonConduitUser);
+        ConduitUser conduitUser = Json.decodeValue(routingContext.getBodyAsString(), ConduitUser.class);
 
         // Validation
         EmailValidator emailValidator = EmailValidator.getInstance();
+        String email = conduitUser.getEmail();
 
+        System.out.println(conduitUser.getEmail());
+        System.out.println(emailValidator.isValid(conduitUser.getEmail()));
         // if the email address is invalid
-        if(!emailValidator.isValid(conduitUser.getEmail())){
+        if(!emailValidator.isValid(email)){
             System.out.println("invalid email detected");
             ValidationError validationError = new ValidationError("invalid email address");
             routingContext.response().setStatusCode(422)
@@ -111,13 +118,13 @@ public class RegistrationVerticle extends AbstractVerticle{
         }
 
         // return the newly created user
-        System.out.println("saving user");
-        mongoClient.insert(COLLECTION, conduitUser.toJson(), r ->{
-            routingContext.response()
-                    .setStatusCode(201)
-                    .putHeader("content-type", "application/json; charset=utf-8")
-                    .end(Json.encodePrettily(new ConduitUser("conduituser@vertx.io", "conduitusername", "conduituserpassword", "I am a test user", null, null, null)));
-        });
+        LOGGER.debug("saving user");
+//        mongoClient.insert(COLLECTION, conduitUser.toJson(), r ->{
+//            routingContext.response()
+//                    .setStatusCode(201)
+//                    .putHeader("content-type", "application/json; charset=utf-8")
+//                    .end(Json.encodePrettily(new ConduitUser("conduituser@vertx.io", "conduitusername", "conduituserpassword", "I am a test user", null, null, null)));
+//        });
 
     }
 

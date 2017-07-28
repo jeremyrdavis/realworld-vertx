@@ -10,26 +10,25 @@ import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.ext.web.client.HttpResponse;
-import io.vertx.ext.web.client.WebClient;
 import io.vertx.realworld.conduit.domain.ConduitUser;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 @RunWith(VertxUnitRunner.class)
 public class RegistrationVerticleTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationVerticleTest.class);
 
     private Vertx vertx;
 
@@ -69,7 +68,8 @@ public class RegistrationVerticleTest {
                         .put("connection_string", "mongodb://localhost:" + MONGO_PORT));
         vertx = Vertx.vertx();
         vertx.deployVerticle(RegistrationVerticle.class.getName(), options, testContext.asyncAssertSuccess());
-        System.out.println("verticle deployed");
+
+        LOGGER.debug("verticle deployed");
     }
 
     @After
@@ -106,7 +106,7 @@ public class RegistrationVerticleTest {
      */
     @Test
     public void testRegisterNewUser(TestContext testContext){
-        System.out.println("testRegisterNewUser");
+        LOGGER.debug("testRegisterNewUser");
 
         final Async async = testContext.async();
 
@@ -123,6 +123,7 @@ public class RegistrationVerticleTest {
         try{
             vertx.createHttpClient().post(8080, "localhost", "/api/users")
                     .putHeader("content-type","application/json; charset=utf-8")
+                    .putHeader("content-length", String.valueOf(payload.length()))
                     .handler(
                         response ->{
                             testContext.assertEquals(201, response.statusCode());
