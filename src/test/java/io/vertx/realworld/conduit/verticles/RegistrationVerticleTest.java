@@ -23,6 +23,7 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.realworld.conduit.domain.ConduitUser;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import sun.rmi.runtime.Log;
 
 import java.io.IOException;
 
@@ -124,7 +125,7 @@ public class RegistrationVerticleTest {
 //        JsonObject payload = new JsonObject().put("username", "conduitusername")
 //                .put("email", "conduituser@vertx.io")
 //                .put("password", "conduituserpassword");
-        System.out.println(payload.toString());
+        LOGGER.debug(payload.toString());
 
         try{
             vertx.createHttpClient().post(8080, "localhost", "/api/users")
@@ -157,12 +158,12 @@ public class RegistrationVerticleTest {
 
     @Test
     public void testRegisterNewUserValidationForEmail(TestContext testContext){
-        System.out.println("testRegisterNewUserValidationForEmail");
+        LOGGER.debug("testRegisterNewUserValidationForEmail");
 
         final Async async = testContext.async();
 
         WebClient client = WebClient.create(vertx);
-        System.out.println("client created");
+        LOGGER.debug("client created");
 
         try{
             client.post(8080, "localhost", "/api/users").sendJsonObject(
