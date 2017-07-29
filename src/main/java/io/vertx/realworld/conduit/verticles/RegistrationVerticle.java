@@ -104,17 +104,28 @@ public class RegistrationVerticle extends AbstractVerticle{
 
         // if the email address is invalid
         if(!emailValidator.isValid(user.getEmail())){
-            LOGGER.error("invalid email detected");
+            LOGGER.error(ValidationError.INVALID_EMAIL_MESSAGE);
 
-            ValidationError validationError = new ValidationError("invalid email address");
+            ValidationError validationError = new ValidationError(ValidationError.INVALID_EMAIL_MESSAGE);
+
             routingContext.response().setStatusCode(422)
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encodePrettily(validationError));
 
         }else if(StringUtils.isEmpty(user.getUsername())) {
-            LOGGER.error("empty username detected");
+            LOGGER.error(ValidationError.EMPTY_USERNAME_MESSAGE);
 
-            ValidationError validationError = new ValidationError("username cannot be empty");
+            ValidationError validationError = new ValidationError(ValidationError.EMPTY_USERNAME_MESSAGE);
+
+            routingContext.response().setStatusCode(422)
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encodePrettily(validationError));
+
+        }else if(StringUtils.isEmpty(user.getPassword())){
+            LOGGER.error(ValidationError.EMPTY_PASSWORD_MESSAGE);
+
+            ValidationError validationError = new ValidationError(ValidationError.EMPTY_PASSWORD_MESSAGE);
+
             routingContext.response().setStatusCode(422)
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encodePrettily(validationError));

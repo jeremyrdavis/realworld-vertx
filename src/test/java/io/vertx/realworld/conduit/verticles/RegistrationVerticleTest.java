@@ -86,7 +86,7 @@ public class RegistrationVerticleTest {
     }
 
     /**
-     * This tests the implementation of the Registration endpoint
+     * This tests the successful post to the Registration endpoint, "/api/users"
      *
      * POST /api/users
      *
@@ -105,7 +105,7 @@ public class RegistrationVerticleTest {
      *       "email": "jake@jake.jake",
      *       "token": "jwt.token.here",
      *       "username": "jake",
-     *       "bio": "I work at statefarm",
+     *       "bio": null,
      *       "image": null
      *       }
      *   }
@@ -118,11 +118,10 @@ public class RegistrationVerticleTest {
 
         final Async async = testContext.async();
 
-        User c = new User("conduituser@vertx.io", "conduitusername", "conduitpassword", null, null, null, null);
-        final String payload = Json.encodePrettily(c);
+        User user = new User("conduituser@vertx.io", "conduitusername", "conduitpassword", null, null, null, null);
+        final String payload = Json.encodePrettily(user);
 
-        LOGGER.debug("payload");
-        LOGGER.debug(payload.toString());
+        LOGGER.debug(payload);
 
         try{
             vertx.createHttpClient().post(8080, "localhost", "/api/users")
@@ -153,64 +152,106 @@ public class RegistrationVerticleTest {
     }
 
 
+
     @Test
     public void testRegisterNewUserValidationForEmail(TestContext testContext){
         LOGGER.debug("testRegisterNewUserValidationForEmail");
 
         final Async async = testContext.async();
+        final String json = Json.encodePrettily(new User(null, "conduituser", "conduitpassword", null, null, null, null));
 
-        WebClient client = WebClient.create(vertx);
-        LOGGER.debug("client created");
-
-        try{
-            client.post(8080, "localhost", "/api/users").sendJsonObject(
-                    new JsonObject().put("username", "conduitusername")
-                            .put("password", "conduituserpassword"),
-                    ar ->{
-                        testContext.assertTrue(ar.succeeded());
-
-                        HttpResponse<Buffer> response = ar.result();
-
-                        testContext.assertEquals(422, response.statusCode());
-                        testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
-
-                        async.complete();
+        vertx.createHttpClient().post(8080, "localhost", "/api/users")
+                .putHeader("content-type","application/json; charset=utf-8")
+                .putHeader("content-length", String.valueOf(json.length()))
+                .handler(response ->  {
+                    testContext.assertEquals(response.statusCode(), 422);
+                    testContext.assertTrue(response.headers().get("content-type").contains("application/json"));
+                    response.bodyHandler(body -> {
+                       final ValidationError validationError = Json.decodeValue(body.toString(), ValidationError.class);
+                       testContext.assertNotNull(validationError);
+                       testContext.assertEquals(ValidationError.INVALID_EMAIL_MESSAGE, validationError.getError());
+                       async.complete();
                     });
-
-        }catch (Exception e){
-            assertNull(e);
-        }
+                }).write(json).end();
     }
 
+    /**
+     * This test case verifies that an error is thrown by the Registration endpoint, "/api/users" when no value supplied for username
+     *
+     * @param testContext
+     */
     @Test
     public void testRegistrationUsernameValidation(TestContext testContext){
         LOGGER.debug("Testing validation for 'username'");
 
         final Async async = testContext.async();
 
-        WebClient client = WebClient.create(vertx);
+        User user = new User("conduituser@vertx.io", null, "conduitpassword", null, null, null, null);
+        final String payload = Json.encodePrettily(user);
+
+        LOGGER.debug(payload);
 
         try{
-
-            client.post(8080, "localhost", "/api/users").sendJsonObject(
-
-                    new JsonObject().put("email", "conduituser@vertx.io")
-                            .put("password", "conduituserpassword"),
-                    ar -> {
-                        testContext.assertTrue(ar.succeeded());
-
-                        HttpResponse<Buffer> response = ar.result();
-
-                        testContext.assertEquals(422, response.statusCode(), "Status code should be 422");
-                        testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
-
-                        async.complete();
-
-                    });
+            vertx.createHttpClient().post(8080, "localhost", "/api/users")
+                    .putHeader("content-type","application/json; charset=utf-8")
+                    .putHeader("content-length", String.valueOf(payload.length()))
+                    .handler(
+                            response ->{
+                                testContext.assertEquals(422, response.statusCode());
+                                testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
+                                response.bodyHandler(body ->{
+                                    final ValidationError validationError = Json.decodeValue(body.toString(), ValidationError.class);
+                                    LOGGER.debug(validationError.toString());
+                                    testContext.assertNotNull(validationError);
+                                    testContext.assertEquals(ValidationError.EMPTY_USERNAME_MESSAGE, validationError.getError());
+                                    async.complete();
+                                });
+                            })
+                    .write(payload)
+                    .end();
 
         }catch (Exception e){
-            testContext.assertNull(e);
+            assertNull(e);
         }
     }
 
+    /**
+     * This test case verifies that an error is thrown by the Registration endpoint, "/api/users" when no value supplied for password
+     *
+     * @param testContext
+     */
+    @Test
+    public void testRegistrationPasswordValidation(TestContext testContext){
+        LOGGER.debug("Testing validation for 'password");
+
+        final Async async = testContext.async();
+
+        User user = new User("conduituser@vertx.io", "conduitusername", null, null, null, null, null);
+        final String payload = Json.encodePrettily(user);
+
+        LOGGER.debug(payload);
+
+        try{
+            vertx.createHttpClient().post(8080, "localhost", "/api/users")
+                    .putHeader("content-type","application/json; charset=utf-8")
+                    .putHeader("content-length", String.valueOf(payload.length()))
+                    .handler(
+                            response ->{
+                                testContext.assertEquals(422, response.statusCode());
+                                testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
+                                response.bodyHandler(body ->{
+                                    final ValidationError validationError = Json.decodeValue(body.toString(), ValidationError.class);
+                                    LOGGER.debug(validationError.toString());
+                                    testContext.assertNotNull(validationError);
+                                    testContext.assertEquals(ValidationError.EMPTY_PASSWORD_MESSAGE, validationError.getError());
+                                    async.complete();
+                                });
+                            })
+                    .write(payload)
+                    .end();
+
+        }catch (Exception e){
+            assertNull(e);
+        }
+    }
 }
