@@ -10,6 +10,7 @@ import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -17,6 +18,8 @@ import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
 import io.vertx.realworld.conduit.domain.ConduitUser;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -69,7 +72,11 @@ public class RegistrationVerticleTest {
         vertx = Vertx.vertx();
         vertx.deployVerticle(RegistrationVerticle.class.getName(), options, testContext.asyncAssertSuccess());
 
-        LOGGER.debug("verticle deployed");
+        LOGGER.info("info");
+        LOGGER.debug("debug");
+        LOGGER.error("error");
+        LOGGER.trace("trace");
+        LOGGER.fatal("fatal");
     }
 
     @After
@@ -148,7 +155,6 @@ public class RegistrationVerticleTest {
     }
 
 
-/*
     @Test
     public void testRegisterNewUserValidationForEmail(TestContext testContext){
         System.out.println("testRegisterNewUserValidationForEmail");
@@ -170,9 +176,6 @@ public class RegistrationVerticleTest {
                         testContext.assertEquals(422, response.statusCode());
                         testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
 
-                        JsonObject body = response.bodyAsJsonObject();
-                        System.out.println(body);
-                        assertNotNull(body);
                         async.complete();
                     });
 
@@ -180,6 +183,5 @@ public class RegistrationVerticleTest {
             assertNull(e);
         }
     }
-*/
 
 }
