@@ -1,11 +1,11 @@
 package io.vertx.realworld.conduit.domain;
 
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
-public class ConduitUser {
+public class User {
 
     private String id;
 
@@ -21,10 +21,10 @@ public class ConduitUser {
 
     private URI image;
 
-    public ConduitUser() {
+    public User() {
     }
 
-    public ConduitUser(String email, String username, String password, String bio, URI image, String token, String id) {
+    public User(String email, String username, String password, String bio, URI image, String token, String id) {
         this.email = email;
         this.token = token;
         this.username = username;
@@ -34,14 +34,25 @@ public class ConduitUser {
         this.id = id;
     }
 
-    public ConduitUser(JsonObject jsonObject){
-        this.email = email = jsonObject.getString("email");
-        this.token = token = jsonObject.getString("token");
-        this.username = jsonObject.getString("username");
-        this.password = jsonObject.getString("password");
-        this.bio =  jsonObject.getString("bio");
-        this.image = URI.create(jsonObject.getString("image"));
-        this.id = jsonObject.getString("id");
+//    public User(JsonObject jsonObject){
+//        this.email = jsonObject.getString("email");
+//        this.token = jsonObject.getString("token");
+//        this.username = jsonObject.getString("username");
+//        this.password = jsonObject.getString("password");
+//        this.bio =  jsonObject.getString("bio");
+//        this.image = URI.create(jsonObject.getString("image"));
+//        this.id = jsonObject.getString("id");
+//    }
+//
+    public String toString(){
+        return new ToStringBuilder(this)
+                .append("username", username)
+                .append("id", id)
+                .append("email", email)
+                .append("password", password)
+                .append("bio", bio)
+                .append("image", image)
+                .toString();
     }
 
     public JsonObject toJson() {
@@ -54,14 +65,15 @@ public class ConduitUser {
         if (id != null && !id.isEmpty()) {
             json.put("_id", id);
         }
-        return json;
+        JsonObject user = new JsonObject().put("user", json);
+        return user;
     }
 
     public String getId() {
         return id;
     }
 
-    public ConduitUser setId(String id) {
+    public User setId(String id) {
         this.id = id;
         return this;
     }

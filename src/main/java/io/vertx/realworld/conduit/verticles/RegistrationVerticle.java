@@ -13,7 +13,7 @@ import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.realworld.conduit.domain.ConduitUser;
+import io.vertx.realworld.conduit.domain.User;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.ArrayList;
@@ -96,13 +96,13 @@ public class RegistrationVerticle extends AbstractVerticle{
      */
     private void registerUser(RoutingContext routingContext){
 
-        ConduitUser conduitUser = Json.decodeValue(routingContext.getBodyAsString(), ConduitUser.class);
+        User user = Json.decodeValue(routingContext.getBodyAsString(), User.class);
 
         // Validation
         EmailValidator emailValidator = EmailValidator.getInstance();
 
         // if the email address is invalid
-        if(!emailValidator.isValid(conduitUser.getEmail())){
+        if(!emailValidator.isValid(user.getEmail())){
             System.out.println("invalid email detected");
             ValidationError validationError = new ValidationError("invalid email address");
             routingContext.response().setStatusCode(422)
@@ -111,29 +111,29 @@ public class RegistrationVerticle extends AbstractVerticle{
         }else{
             // return the newly created user
             System.out.println("saving user");
-            mongoClient.insert(COLLECTION, conduitUser.toJson(), r ->{
-                System.out.println(r.result());
+            mongoClient.insert(COLLECTION, user.toJson(), r ->{
+                final User updatedUser = user.setId(r.result());
+                final JsonObject returnValue = new JsonObject().put("user", updatedUser.toJson());
+                final String returnString = returnValue.toString();
                 routingContext.response()
                         .setStatusCode(201)
                         .putHeader("content-type", "application/json; charset=utf-8")
-                        .end(Json.encodePrettily(conduitUser.setId(r.result())));
+                        .end(Json.encodePrettily(updatedUser));
             });
         }
-
-
     }
 
     private void createSomeData(Handler<AsyncResult<Void>> next, Future<Void> fut) {
 
-        ArrayList<ConduitUser> conduitUsers = new ArrayList<ConduitUser>(3);
-        conduitUsers.add(new ConduitUser("user1@vertx.io", "user1", "password1", null, null, null, null));
-        conduitUsers.add(new ConduitUser("user2@vertx.io", "user1", "password2", null, null, null, null));
-        conduitUsers.add(new ConduitUser("user3@vertx.io", "user1", "password3", null, null, null, null));
+        ArrayList<User> users = new ArrayList<User>(3);
+        users.add(new User("user1@vertx.io", "user1", "password1", null, null, null, null));
+        users.add(new User("user2@vertx.io", "user1", "password2", null, null, null, null));
+        users.add(new User("user3@vertx.io", "user1", "password3", null, null, null, null));
 
         mongoClient.count(COLLECTION, new JsonObject(), count ->{
             if(count.succeeded()){
                 if(count.result() <= 0){
-                    conduitUsers.forEach( u -> { mongoClient.insert(COLLECTION, u.toJson(), ar -> {
+                    users.forEach(u -> { mongoClient.insert(COLLECTION, u.toJson(), ar -> {
                         if(ar.failed()){
                             fut.fail(ar.cause());
                         }else{

@@ -20,10 +20,9 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.realworld.conduit.domain.ConduitUser;
+import io.vertx.realworld.conduit.domain.User;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import sun.rmi.runtime.Log;
 
 import java.io.IOException;
 
@@ -118,13 +117,10 @@ public class RegistrationVerticleTest {
 
         final Async async = testContext.async();
 
-        final String payload = Json.encodePrettily(new ConduitUser("conduituser@vertx.io", "conduitusername", "conduitpassword", null, null, null, null));
+        User c = new User("conduituser@vertx.io", "conduitusername", "conduitpassword", null, null, null, null);
+        final String payload = Json.encodePrettily(c);
 
-//        WebClient client = WebClient.create(vertx);
-
-//        JsonObject payload = new JsonObject().put("username", "conduitusername")
-//                .put("email", "conduituser@vertx.io")
-//                .put("password", "conduituserpassword");
+        LOGGER.debug("payload");
         LOGGER.debug(payload.toString());
 
         try{
@@ -136,7 +132,7 @@ public class RegistrationVerticleTest {
                             testContext.assertEquals(201, response.statusCode());
                             testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
                             response.bodyHandler(body ->{
-                                final ConduitUser conduitUser = Json.decodeValue(body.toString(), ConduitUser.class);
+                                final User conduitUser = Json.decodeValue(body.toString(), User.class);
                                 System.out.println(conduitUser.toJson());
                                 testContext.assertNotNull(conduitUser);
                                 testContext.assertNotNull(conduitUser.getId());
