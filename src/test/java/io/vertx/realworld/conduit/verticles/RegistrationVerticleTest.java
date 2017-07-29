@@ -1,5 +1,6 @@
 package io.vertx.realworld.conduit.verticles;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -178,6 +179,37 @@ public class RegistrationVerticleTest {
 
         }catch (Exception e){
             assertNull(e);
+        }
+    }
+
+    @Test
+    public void testRegistrationUsernameValidation(TestContext testContext){
+        LOGGER.debug("Testing validation for 'username'");
+
+        final Async async = testContext.async();
+
+        WebClient client = WebClient.create(vertx);
+
+        try{
+
+            client.post(8080, "localhost", "/api/users").sendJsonObject(
+
+                    new JsonObject().put("email", "conduituser@vertx.io")
+                            .put("password", "conduituserpassword"),
+                    ar -> {
+                        testContext.assertTrue(ar.succeeded());
+
+                        HttpResponse<Buffer> response = ar.result();
+
+                        testContext.assertEquals(422, response.statusCode(), "Status code should be 422");
+                        testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
+
+                        async.complete();
+
+                    });
+
+        }catch (Exception e){
+            testContext.assertNull(e);
         }
     }
 

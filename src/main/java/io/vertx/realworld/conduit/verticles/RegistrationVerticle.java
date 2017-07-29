@@ -14,6 +14,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.realworld.conduit.domain.User;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.ArrayList;
@@ -103,14 +104,24 @@ public class RegistrationVerticle extends AbstractVerticle{
 
         // if the email address is invalid
         if(!emailValidator.isValid(user.getEmail())){
-            System.out.println("invalid email detected");
+            LOGGER.error("invalid email detected");
+
             ValidationError validationError = new ValidationError("invalid email address");
             routingContext.response().setStatusCode(422)
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encodePrettily(validationError));
+
+        }else if(StringUtils.isEmpty(user.getUsername())) {
+            LOGGER.error("empty username detected");
+
+            ValidationError validationError = new ValidationError("username cannot be empty");
+            routingContext.response().setStatusCode(422)
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encodePrettily(validationError));
+
         }else{
             // return the newly created user
-            System.out.println("saving user");
+            LOGGER.info("saving user");
             mongoClient.insert(COLLECTION, user.toJson(), r ->{
                 final User updatedUser = user.setId(r.result());
                 final JsonObject returnValue = new JsonObject().put("user", updatedUser.toJson());
