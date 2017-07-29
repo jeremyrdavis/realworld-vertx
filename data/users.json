@@ -1,0 +1,17 @@
+[
+  {
+    "email": "user1@vertx.io",
+    "username": "user1",
+    "password": "password1"
+  },
+  {
+    "email": "user2@vertx.io",
+    "username": "user2",
+    "password": "password2"
+  },
+  {
+    "email": "user3@vertx.io",
+    "username": "user3",
+    "password": "password3"
+  }
+]

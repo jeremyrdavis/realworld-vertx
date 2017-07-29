@@ -19,3 +19,9 @@ The Docker command to start MongoDB is:
 ```
 docker run -d -p 27017:27017 mongo 
 ```
+
+To load the data in the /data directory run (from the /data directory):
+
+```
+mongoimport --db conduit --collection conduit_users --file users.json --jsonArray
+```
