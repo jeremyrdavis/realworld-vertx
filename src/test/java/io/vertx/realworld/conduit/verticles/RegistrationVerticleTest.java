@@ -25,6 +25,7 @@ import io.vertx.realworld.conduit.domain.User;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
+import javax.jws.soap.SOAPBinding;
 import java.io.IOException;
 
 import static org.junit.Assert.*;
@@ -253,5 +254,52 @@ public class RegistrationVerticleTest {
         }catch (Exception e){
             assertNull(e);
         }
+    }
+
+    @Test
+    public void testValidationForEmptyEmailAddress(TestContext testContext){
+        User user = new User(" ", "username", "password");
+        testParameter(testContext, user, new ValidationError(ValidationError.INVALID_EMAIL_MESSAGE));
+    }
+
+    @Test
+    public void testValidationForEmptyUsername(TestContext testContext){
+        User user = new User("conduituser@vertx.io", "   ", "password");
+        testParameter(testContext, user, new ValidationError(ValidationError.EMPTY_USERNAME_MESSAGE));
+    }
+
+
+    void testParameter(TestContext testContext, User user, ValidationError validationError){
+        LOGGER.debug("testing for: " + validationError.getError());
+
+        final Async async = testContext.async();
+
+        final String payload = Json.encodePrettily(user);
+
+        LOGGER.debug(payload);
+
+        try{
+            vertx.createHttpClient().post(8080, "localhost", "/api/users")
+                    .putHeader("content-type","application/json; charset=utf-8")
+                    .putHeader("content-length", String.valueOf(payload.length()))
+                    .handler(
+                            response ->{
+                                testContext.assertEquals(422, response.statusCode());
+                                testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
+                                response.bodyHandler(body ->{
+                                    final ValidationError validationErrorReturned = Json.decodeValue(body.toString(), ValidationError.class);
+                                    LOGGER.debug(validationError.toString());
+                                    testContext.assertNotNull(validationError);
+                                    testContext.assertEquals(validationError.getError(), validationErrorReturned.getError());
+                                    async.complete();
+                                });
+                            })
+                    .write(payload)
+                    .end();
+
+        }catch (Exception e){
+            assertNull(e);
+        }
+
     }
 }

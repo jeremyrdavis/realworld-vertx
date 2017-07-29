@@ -112,7 +112,7 @@ public class RegistrationVerticle extends AbstractVerticle{
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encodePrettily(validationError));
 
-        }else if(StringUtils.isEmpty(user.getUsername())) {
+        }else if(StringUtils.isEmpty(StringUtils.trimToEmpty(user.getUsername()))) {
             LOGGER.error(ValidationError.EMPTY_USERNAME_MESSAGE);
 
             ValidationError validationError = new ValidationError(ValidationError.EMPTY_USERNAME_MESSAGE);
@@ -121,7 +121,7 @@ public class RegistrationVerticle extends AbstractVerticle{
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encodePrettily(validationError));
 
-        }else if(StringUtils.isEmpty(user.getPassword())){
+        }else if(StringUtils.isEmpty(StringUtils.trimToEmpty(user.getPassword()))){
             LOGGER.error(ValidationError.EMPTY_PASSWORD_MESSAGE);
 
             ValidationError validationError = new ValidationError(ValidationError.EMPTY_PASSWORD_MESSAGE);

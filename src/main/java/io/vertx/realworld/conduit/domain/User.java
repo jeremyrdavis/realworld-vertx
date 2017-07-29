@@ -34,7 +34,20 @@ public class User {
         this.id = id;
     }
 
-//    public User(JsonObject jsonObject){
+    /**
+     * Smaller constructor for use with the Register api endpoint
+     *
+     * @param email String
+     * @param username String
+     * @param password String
+     */
+    public User(String email, String username, String password) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
+    }
+
+    //    public User(JsonObject jsonObject){
 //        this.email = jsonObject.getString("email");
 //        this.token = jsonObject.getString("token");
 //        this.username = jsonObject.getString("username");
