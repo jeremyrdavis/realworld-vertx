@@ -96,35 +96,30 @@ public class RegistrationVerticle extends AbstractVerticle{
      */
     private void registerUser(RoutingContext routingContext){
 
-        System.out.println(routingContext.getBodyAsString());
-        System.out.println("input:");
-        System.out.println(routingContext.getBodyAsJson());
-
         ConduitUser conduitUser = Json.decodeValue(routingContext.getBodyAsString(), ConduitUser.class);
 
         // Validation
         EmailValidator emailValidator = EmailValidator.getInstance();
-        String email = conduitUser.getEmail();
 
-        System.out.println(conduitUser.getEmail());
-        System.out.println(emailValidator.isValid(conduitUser.getEmail()));
         // if the email address is invalid
-        if(!emailValidator.isValid(email)){
+        if(!emailValidator.isValid(conduitUser.getEmail())){
             System.out.println("invalid email detected");
             ValidationError validationError = new ValidationError("invalid email address");
             routingContext.response().setStatusCode(422)
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encodePrettily(validationError));
+        }else{
+            // return the newly created user
+            System.out.println("saving user");
+            mongoClient.insert(COLLECTION, conduitUser.toJson(), r ->{
+                System.out.println(r.result());
+                routingContext.response()
+                        .setStatusCode(201)
+                        .putHeader("content-type", "application/json; charset=utf-8")
+                        .end(Json.encodePrettily(conduitUser.setId(r.result())));
+            });
         }
 
-        // return the newly created user
-        LOGGER.debug("saving user");
-//        mongoClient.insert(COLLECTION, conduitUser.toJson(), r ->{
-//            routingContext.response()
-//                    .setStatusCode(201)
-//                    .putHeader("content-type", "application/json; charset=utf-8")
-//                    .end(Json.encodePrettily(new ConduitUser("conduituser@vertx.io", "conduitusername", "conduituserpassword", "I am a test user", null, null, null)));
-//        });
 
     }
 

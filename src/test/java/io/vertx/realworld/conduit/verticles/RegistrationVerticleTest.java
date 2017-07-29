@@ -110,7 +110,7 @@ public class RegistrationVerticleTest {
 
         final Async async = testContext.async();
 
-        final String payload = Json.encodePrettily(new ConduitUser("conduituser@vertx.io", "conduituser@vertx.io", "conduituserpassword", null, null, null, null));
+        final String payload = Json.encodePrettily(new ConduitUser("conduituser@vertx.io", "conduitusername", "conduitpassword", null, null, null, null));
 
 //        WebClient client = WebClient.create(vertx);
 
@@ -118,7 +118,6 @@ public class RegistrationVerticleTest {
 //                .put("email", "conduituser@vertx.io")
 //                .put("password", "conduituserpassword");
         System.out.println(payload.toString());
-
 
         try{
             vertx.createHttpClient().post(8080, "localhost", "/api/users")
@@ -130,17 +129,22 @@ public class RegistrationVerticleTest {
                             testContext.assertEquals("application/json; charset=utf-8", response.getHeader("content-type"));
                             response.bodyHandler(body ->{
                                 final ConduitUser conduitUser = Json.decodeValue(body.toString(), ConduitUser.class);
-                                assertNotNull(conduitUser);
-                                assertEquals("conduituser@vertx.io", conduitUser.getEmail());
+                                System.out.println(conduitUser.toJson());
+                                testContext.assertNotNull(conduitUser);
+                                testContext.assertNotNull(conduitUser.getId());
+                                testContext.assertEquals("conduituser@vertx.io", conduitUser.getEmail());
+                                testContext.assertEquals("conduitusername", conduitUser.getUsername());
+                                testContext.assertEquals("conduitpassword", conduitUser.getPassword());
                                 async.complete();
                             });
                         })
                     .write(payload)
                     .end();
-
         }catch (Exception e){
             assertNull(e);
         }
+
+
     }
 
 

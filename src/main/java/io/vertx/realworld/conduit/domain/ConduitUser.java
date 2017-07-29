@@ -61,8 +61,9 @@ public class ConduitUser {
         return id;
     }
 
-    public void setId(String id) {
+    public ConduitUser setId(String id) {
         this.id = id;
+        return this;
     }
 
     public String getEmail() {
