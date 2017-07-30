@@ -1,9 +1,11 @@
 package io.vertx.realworld.conduit.domain;
 
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 public class User {
 
@@ -24,6 +26,29 @@ public class User {
     public User() {
     }
 
+    /**
+     * Constructor for Login endpoint
+     *
+     * @param email String
+     * @param password String
+     */
+    public User(String email, String password){
+        this.email = email;
+        this.password = password;
+    }
+
+
+    /**
+     * Constructor with complete arguments
+     *
+     * @param email String
+     * @param username String
+     * @param password String
+     * @param bio String
+     * @param image URI
+     * @param token String
+     * @param id String
+     */
     public User(String email, String username, String password, String bio, URI image, String token, String id) {
         this.email = email;
         this.token = token;
@@ -47,16 +72,23 @@ public class User {
         this.password = password;
     }
 
-    //    public User(JsonObject jsonObject){
-//        this.email = jsonObject.getString("email");
-//        this.token = jsonObject.getString("token");
-//        this.username = jsonObject.getString("username");
-//        this.password = jsonObject.getString("password");
-//        this.bio =  jsonObject.getString("bio");
-//        this.image = URI.create(jsonObject.getString("image"));
-//        this.id = jsonObject.getString("id");
-//    }
-//
+    public User(JsonObject jsonObject) {
+        if(!StringUtils.isEmpty(StringUtils.trimToEmpty(jsonObject.getString("email")))){
+            this.email = jsonObject.getString("email");
+        }
+        if(!StringUtils.isEmpty(StringUtils.trimToEmpty(jsonObject.getString("username")))){
+            this.email = jsonObject.getString("username");
+        }
+        if(!StringUtils.isEmpty(StringUtils.trimToEmpty(jsonObject.getString("password")))){
+            this.email = jsonObject.getString("password");
+        }
+    }
+
+    /**
+     * Null safe implementation
+     *
+     * @return String
+     */
     public String toString(){
         return new ToStringBuilder(this)
                 .append("username", username)

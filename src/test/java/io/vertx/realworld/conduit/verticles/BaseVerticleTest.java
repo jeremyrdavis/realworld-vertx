@@ -31,11 +31,12 @@ import static org.junit.Assert.assertNull;
 @RunWith(VertxUnitRunner.class)
 public class BaseVerticleTest{
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(UsersVerticleTest.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(UsersRegistrationVerticleTest.class);
     protected static MongodProcess MONGO;
     protected static int MONGO_PORT = 12345;
     protected static int HTTP_PORT = 8080;
     protected Vertx vertx;
+    protected String endpoint;
 
 
     /**
@@ -85,7 +86,7 @@ public class BaseVerticleTest{
         LOGGER.debug(payload);
 
         try{
-            vertx.createHttpClient().post(8080, "localhost", "/api/users")
+            vertx.createHttpClient().post(8080, "localhost", endpoint)
                     .putHeader("content-type","application/json; charset=utf-8")
                     .putHeader("content-length", String.valueOf(payload.length()))
                     .handler(

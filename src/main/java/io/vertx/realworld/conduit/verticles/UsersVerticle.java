@@ -47,6 +47,7 @@ public class UsersVerticle extends AbstractVerticle{
 
         router.post().handler(BodyHandler.create());
         router.post("/api/users").handler(this::registerUser);
+        router.post("/api/users/login").handler(this::loginUser);
 
         // Create the HTTP server and pass the "accept" method to the request handler.
         vertx
@@ -67,6 +68,78 @@ public class UsersVerticle extends AbstractVerticle{
     }
 
     /**
+     *  {
+     *      "user":{
+     *          "email": "jake@jake.jake",
+     *          "password": "jakejake"
+     *      }
+     *  }
+     *
+     *  the email and password fields are both required
+     *  returns a User object:
+     *
+     * {
+     *     "user": {
+     *        "email": "jake@jake.jake",
+     *        "token": "jwt.token.here",
+     *        "username": "jake",
+     *        "bio": "I work at statefarm",
+     *        "image": null
+     *      }
+     *  }
+     *
+     * @param routingContext
+     */
+    private void loginUser(RoutingContext routingContext) {
+        User user = Json.decodeValue(routingContext.getBodyAsString(), User.class);
+        LOGGER.debug("Logging in user");
+
+        // Validation
+        EmailValidator emailValidator = EmailValidator.getInstance();
+
+        // if the email address is invalid
+        if(!emailValidator.isValid(user.getEmail())){
+            LOGGER.error(ValidationError.INVALID_EMAIL_MESSAGE);
+
+            ValidationError validationError = new ValidationError(ValidationError.INVALID_EMAIL_MESSAGE);
+
+            routingContext.response().setStatusCode(422)
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encodePrettily(validationError));
+
+        }else if(StringUtils.isEmpty(StringUtils.trimToEmpty(user.getPassword()))){
+            LOGGER.error(ValidationError.EMPTY_PASSWORD_MESSAGE);
+
+            ValidationError validationError = new ValidationError(ValidationError.EMPTY_PASSWORD_MESSAGE);
+
+            routingContext.response().setStatusCode(422)
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encodePrettily(validationError));
+        }else{
+            // lookup the user
+            LOGGER.debug("looking up user with email " + user.getEmail());
+            mongoClient.find(COLLECTION, new JsonObject().put("email", user.getEmail()).put("password", user.getPassword()), r ->{
+
+                if (r.succeeded()) {
+                    User userResult = new User(r.result().get(0));
+                    final JsonObject returnValue = new JsonObject().put("user", userResult.toJson());
+                    final String returnString = returnValue.toString();
+                    routingContext.response()
+                            .setStatusCode(201)
+                            .putHeader("content-type", "application/json; charset=utf-8")
+                            .end(Json.encodePrettily(userResult));
+                }else{
+                    routingContext.response()
+                            .setStatusCode(422)
+                            .putHeader("content-type", "application/json; charset=utf-8")
+                            .end(Json.encodePrettily(new ValidationError(ValidationError.UNKOWN_USER)));
+
+                }
+            });
+        }
+    }
+
+    /**
      * Implements the Realworld API "Registration" endpoint
      * https://github.com/gothinkster/realworld/tree/master/api#registration
      *
@@ -82,7 +155,7 @@ public class UsersVerticle extends AbstractVerticle{
      * The response should be the newly registered User object:
      * https://github.com/gothinkster/realworld/tree/master/api#users-for-authentication
      *
-     * The payload should resemble:
+     * The return should resemble:
      * {
      *  "user": {
      *      "email": "jake@jake.jake",

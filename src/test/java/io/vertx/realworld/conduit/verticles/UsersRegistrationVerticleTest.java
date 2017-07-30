@@ -26,7 +26,19 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 
 @RunWith(VertxUnitRunner.class)
-public class UsersVerticleTest extends BaseVerticleTest {
+public class UsersRegistrationVerticleTest extends BaseVerticleTest {
+
+    @Before
+    public void setUp(TestContext testContext){
+        DeploymentOptions options = new DeploymentOptions()
+                .setConfig(new JsonObject()
+                        .put("http.port", HTTP_PORT)
+                        .put("db_name", "conduit_users")
+                        .put("connection_string", "mongodb://localhost:" + MONGO_PORT));
+        vertx = Vertx.vertx();
+        vertx.deployVerticle(UsersVerticle.class.getName(), options, testContext.asyncAssertSuccess());
+        this.endpoint = "/api/users";
+    }
 
     /**
      * This tests the successful post to the Registration endpoint, "/api/users"
