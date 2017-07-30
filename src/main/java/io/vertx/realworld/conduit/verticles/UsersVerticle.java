@@ -19,9 +19,9 @@ import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.ArrayList;
 
-public class RegistrationVerticle extends AbstractVerticle{
+public class UsersVerticle extends AbstractVerticle{
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UsersVerticle.class);
 
     private MongoClient mongoClient;
 

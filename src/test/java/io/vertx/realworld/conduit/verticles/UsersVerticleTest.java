@@ -1,6 +1,5 @@
 package io.vertx.realworld.conduit.verticles;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -11,7 +10,6 @@ import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -19,21 +17,18 @@ import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.ext.web.client.HttpResponse;
-import io.vertx.ext.web.client.WebClient;
 import io.vertx.realworld.conduit.domain.User;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
-import javax.jws.soap.SOAPBinding;
 import java.io.IOException;
 
 import static org.junit.Assert.*;
 
 @RunWith(VertxUnitRunner.class)
-public class RegistrationVerticleTest {
+public class UsersVerticleTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationVerticleTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UsersVerticleTest.class);
 
     private Vertx vertx;
 
@@ -72,7 +67,7 @@ public class RegistrationVerticleTest {
                         .put("db_name", "conduit_users")
                         .put("connection_string", "mongodb://localhost:" + MONGO_PORT));
         vertx = Vertx.vertx();
-        vertx.deployVerticle(RegistrationVerticle.class.getName(), options, testContext.asyncAssertSuccess());
+        vertx.deployVerticle(UsersVerticle.class.getName(), options, testContext.asyncAssertSuccess());
 
         LOGGER.info("info");
         LOGGER.debug("debug");
