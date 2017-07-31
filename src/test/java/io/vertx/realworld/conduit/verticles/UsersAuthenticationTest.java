@@ -31,5 +31,20 @@ public class UsersAuthenticationTest extends BaseVerticleTest{
         testParameter(testContext, user, new ValidationError(ValidationError.INVALID_EMAIL_MESSAGE));
     }
 
+    @Test
+    public void testEmptyEmailValidation(TestContext testContext){
+        User user = new User("   ", "conduitpassword");
+        testParameter(testContext, user, new ValidationError(ValidationError.INVALID_EMAIL_MESSAGE));
+    }
 
+    @Test
+    public void testNullPasswordlValidation(TestContext testContext){
+        User user = new User("conduituser@vertx.io", null);
+        testParameter(testContext, user, new ValidationError(ValidationError.EMPTY_PASSWORD_MESSAGE));
+    }
+    @Test
+    public void testEmptyPasswordlValidation(TestContext testContext){
+        User user = new User("conduituser@vertx.io", "   ");
+        testParameter(testContext, user, new ValidationError(ValidationError.EMPTY_PASSWORD_MESSAGE));
+    }
 }
