@@ -4,11 +4,13 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.net.JksOptions;
 import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -30,7 +32,8 @@ public class UsersVerticle extends AbstractVerticle{
     @Override
     public void start(Future<Void> fut) {
 
-        LOGGER.debug(config());
+        LOGGER.debug("config: " + config());
+        System.out.println("config" + config().toString());
         // Create a MongoDB client
         mongoClient = MongoClient.createShared(vertx, config());
 

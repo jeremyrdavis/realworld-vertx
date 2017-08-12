@@ -1,4 +1,12 @@
 {
+  "host": "localhost",
+  "http.port": 8080,
   "db_name": "conduit",
-  "connection_string": "mongodb://localhost:12345"
+  "connection_string": "mongodb://localhost:12345",
+  "ssl": true,
+  "jksOptions": {
+    "path": "server-keystore.jks",
+    "password": "secret"
+  }
+
 }

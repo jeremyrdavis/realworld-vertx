@@ -1,4 +1,0 @@
-{
-  "db_name": "conduit_users",
-  "connection_string": "mongodb://localhost:12345"
-}
