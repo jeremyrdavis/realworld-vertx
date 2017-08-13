@@ -66,7 +66,8 @@ public abstract class BaseVerticleTest{
                 .setConfig(new JsonObject()
                         .put("http.port", HTTP_PORT)
                         .put("db_name", "conduit_users")
-                        .put("connection_string", "mongodb://localhost:" + MONGO_PORT));
+                        .put("connection_string", "mongodb://localhost:" + MONGO_PORT)
+                        .put("ssl", "false"));
         vertx = Vertx.vertx();
         vertx.deployVerticle(UsersVerticle.class.getName(), options, testContext.asyncAssertSuccess());
     }

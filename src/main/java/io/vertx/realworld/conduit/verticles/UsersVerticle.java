@@ -54,7 +54,11 @@ public class UsersVerticle extends AbstractVerticle{
 
         // Create the HTTP server and pass the "accept" method to the request handler.
         vertx
-                .createHttpServer()
+                .createHttpServer(new HttpServerOptions()
+                        .setSsl(config().getBoolean("ssl"))
+                        .setKeyStoreOptions(new JksOptions()
+                                .setPath("server-keystore.jks")
+                                .setPassword("secret")))
                 .requestHandler(router::accept)
                 .listen(
                         // Retrieve the port from the configuration,
