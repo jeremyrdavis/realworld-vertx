@@ -2,6 +2,6 @@
   "host": "localhost",
   "http.port": 8080,
   "db_name": "conduit",
-  "connection_string": "mongodb://localhost:12345",
+  "connection_string": "mongodb://localhost:27017",
   "ssl":true
 }
