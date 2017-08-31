@@ -7,28 +7,39 @@
     <groupId>io.vertx.realworld.conduit</groupId>
     <artifactId>realworld-conduit-vertx</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <properties>
+        <vertx-version>3.4.2</vertx-version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
-            <version>3.4.2</version>
+            <version>${vertx-version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
-            <version>3.4.2</version>
+            <version>${vertx-version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web-client</artifactId>
-            <version>3.4.2</version>
+            <version>${vertx-version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-mongo-client</artifactId>
-            <version>3.4.2</version>
+            <version>${vertx-version}</version>
         </dependency>
+        <!-- JWT stuff -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-auth-jwt</artifactId>
+            <version>${vertx-version}</version>
+        </dependency>
+
+        <!-- Apache Commons stuff -->
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
@@ -51,10 +62,10 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-unit</artifactId>
-            <version>3.4.2</version>
+            <version>${vertx-version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- for starting and stopping MondoDB -->
+        <!-- for starting and stopping MongoDB -->
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
