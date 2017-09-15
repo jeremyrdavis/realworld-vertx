@@ -49,7 +49,7 @@ public class BaseVerticleTest{
         MongodStarter starter = MongodStarter.getDefaultInstance();
         IMongodConfig mongodConfig = new MongodConfigBuilder()
                 .version(Version.Main.PRODUCTION)
-                .net(new Net(MONGO_PORT, Network.localhostIsIPv6()))
+                .net(new Net("localhost", MONGO_PORT, Network.localhostIsIPv6()))
                 .build();
         MongodExecutable mongodExecutable =
                 starter.prepare(mongodConfig);
